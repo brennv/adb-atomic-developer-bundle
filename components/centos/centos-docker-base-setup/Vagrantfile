@@ -2,7 +2,7 @@
 # vi: set ft=ruby :
 
 # Vagrant file for libvirt/kvm and virtualbox provider
-REQUIRED_PLUGINS = %w(vagrant-service-manager)
+REQUIRED_PLUGINS = %w(vagrant-service-manager vagrant-proxyconf)
 errors = []
 
 def message(name)

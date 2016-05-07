@@ -4,7 +4,7 @@
 
 IP_ADDRESS="10.2.2.2"
 
-REQUIRED_PLUGINS = %w(vagrant-service-manager)
+REQUIRED_PLUGINS = %w(vagrant-service-manager vagrant-proxyconf)
 errors = []
 
 def message(name)

@@ -13,7 +13,7 @@ IMAGE_TAG="v1.1.1"
 PUBLIC_ADDRESS="10.1.2.2"
 PUBLIC_HOST="adb.cluster.io"
 
-REQUIRED_PLUGINS = %w(vagrant-service-manager)
+REQUIRED_PLUGINS = %w(vagrant-service-manager vagrant-proxyconf)
 errors = []
 
 def message(name)

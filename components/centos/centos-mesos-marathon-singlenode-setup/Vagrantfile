@@ -18,6 +18,17 @@ unless errors.empty?
 end
 
 Vagrant.configure("2") do |config|
+
+  if ENV.has_key?('VAGRANT_HTTP_PROXY')
+    PROXY = ENV['VAGRANT_HTTP_PROXY']
+    config.proxy.http = #{PROXY}
+  end
+
+  if ENV.has_key?('VAGRANT_HTTPS_PROXY')
+    PROXY = ENV['VAGRANT_HTTPS_PROXY']
+    config.proxy.https = #{PROXY}
+  end
+  
 	config.vm.box = "projectatomic/adb"
 
   config.vm.provider "virtualbox" do |v, override|

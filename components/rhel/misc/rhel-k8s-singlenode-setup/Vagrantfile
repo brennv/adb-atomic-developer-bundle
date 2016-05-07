@@ -15,6 +15,17 @@ end
 
 # Vagrantfile for single node k8s setup
 Vagrant.configure(2) do |config|
+
+  if ENV.has_key?('VAGRANT_HTTP_PROXY')
+    PROXY = ENV['VAGRANT_HTTP_PROXY']
+    config.proxy.http = #{PROXY}
+  end
+
+  if ENV.has_key?('VAGRANT_HTTPS_PROXY')
+    PROXY = ENV['VAGRANT_HTTPS_PROXY']
+    config.proxy.https = #{PROXY}
+  end
+
   config.vm.box = "cdkv2"
 
   config.registration.username = ENV['SUB_USERNAME']
@@ -38,12 +49,11 @@ Vagrant.configure(2) do |config|
   # Fix for ADB #334
   config.servicemanager.services = 'docker'
 
-  if ENV.has_key?('HTTP_PROXY')
-   HTTP_PROXY = ENV['HTTP_PROXY']
+  if ENV.has_key?('VAGRANT_HTTP_PROXY') || ENV.has_key?('VAGRANT_HTTPS_PROXY')
    config.vm.provision "shell", inline: <<-SHELL
       mkdir /etc/systemd/system/docker.service.d
       echo '[Service]' > /etc/systemd/system/docker.service.d/http-proxy.conf
-      echo 'Environment="HTTP_PROXY=#{HTTP_PROXY}"' >> /etc/systemd/system/docker.service.d/http-proxy.conf
+      echo 'Environment="HTTP_PROXY=#{PROXY}"' >> /etc/systemd/system/docker.service.d/http-proxy.conf
       sudo systemctl daemon-reload
       sudo systemctl restart docker
     SHELL

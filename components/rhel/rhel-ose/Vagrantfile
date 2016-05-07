@@ -11,7 +11,7 @@ VM_CPU = ENV['VM_CPU'] || 2
 VM_MEMORY = ENV['VM_MEMORY'] || 3072
 
 # Validate required plugins
-REQUIRED_PLUGINS = %w(vagrant-service-manager vagrant-registration)
+REQUIRED_PLUGINS = %w(vagrant-service-manager vagrant-registration vagrant-proxyconf)
 errors = []
 
 def message(name)
@@ -53,8 +53,8 @@ Vagrant.configure(2) do |config|
    HTTP_PROXY = ENV['HTTP_PROXY']
    config.vm.provision "shell", inline: <<-SHELL
       mkdir /etc/systemd/system/docker.service.d
-      '[Service]' >> /etc/systemd/system/docker.service.d/http-proxy.conf
-      'Environment="HTTP_PROXY=#{HTTP_PROXY}"' >> /etc/systemd/system/docker.service.d/http-proxy.conf
+      echo '[Service]' > /etc/systemd/system/docker.service.d/http-proxy.conf
+      echo 'Environment="HTTP_PROXY=#{HTTP_PROXY}"' >> /etc/systemd/system/docker.service.d/http-proxy.conf
       sudo systemctl daemon-reload
       sudo systemctl restart docker
     SHELL

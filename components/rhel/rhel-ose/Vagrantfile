@@ -11,7 +11,7 @@ VM_CPU = ENV['VM_CPU'] || 2
 VM_MEMORY = ENV['VM_MEMORY'] || 3072
 
 # Validate required plugins
-REQUIRED_PLUGINS = %w(vagrant-service-manager vagrant-registration vagrant-proxyconf)
+REQUIRED_PLUGINS = %w(vagrant-service-manager vagrant-registration)
 errors = []
 
 def message(name)
@@ -24,8 +24,18 @@ unless errors.empty?
   fail Vagrant::Errors::VagrantError.new, msg
 end
 
-Vagrant.configure(2) do |config|
+# Ensure vagrant-proxyconf is installed if a proxy has been declared
+if ENV.has_key?('VAGRANT_HTTP_PROXY') || ENV.has_key?('VAGRANT_HTTPS_PROXY')
+  OPTIONAL_PLUGINS = %w(vagrant-proxyconf)
+  option_errors = []
+  OPTIONAL_PLUGINS.each { |plugin| option_errors << message(plugin) unless Vagrant.has_plugin?(plugin) }
+  unless option_errors.empty?
+    msg = option_errors.size > 1 ? "Errors: \n* #{errors.join("\n* ")}" : "Error: #{errors.first}"
+    fail Vagrant::Errors::VagrantError.new, msg
+  end
+end
 
+Vagrant.configure(2) do |config|
   if ENV.has_key?('VAGRANT_HTTP_PROXY')
     config.proxy.http = ENV['VAGRANT_HTTP_PROXY']
   end
@@ -57,18 +67,6 @@ Vagrant.configure(2) do |config|
   end
 
   config.servicemanager.services = "docker"
-
-  if ENV.has_key?('VAGRANT_HTTP_PROXY') || ENV.has_key?('VAGRANT_HTTPS_PROXY')
-    PROXY = ENV['VAGRANT_HTTP_PROXY'] || ENV['VAGRANT_HTTPS_PROXY']
-    config.vm.provision "shell", inline: <<-SHELL
-      mkdir /etc/systemd/system/docker.service.d
-      echo '[Service]' > /etc/systemd/system/docker.service.d/http-proxy.conf
-      echo 'Environment="HTTP_PROXY=#{PROXY}"' >> /etc/systemd/system/docker.service.d/http-proxy.conf
-      sudo systemctl daemon-reload
-      sudo systemctl restart docker
-      echo "Docker proxy set: #{PROXY}"
-    SHELL
-  end
 
   config.vm.provision "shell", inline: <<-SHELL
     systemctl enable openshift 2>&1

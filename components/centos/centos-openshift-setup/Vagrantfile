@@ -26,6 +26,17 @@ unless errors.empty?
   fail Vagrant::Errors::VagrantError.new, msg
 end
 
+# Ensure vagrant-proxyconf is installed if a proxy has been declared
+if ENV.has_key?('VAGRANT_HTTP_PROXY') || ENV.has_key?('VAGRANT_HTTPS_PROXY')
+  OPTIONAL_PLUGINS = %w(vagrant-proxyconf)
+  option_errors = []
+  OPTIONAL_PLUGINS.each { |plugin| option_errors << message(plugin) unless Vagrant.has_plugin?(plugin) }
+  unless option_errors.empty?
+    msg = option_errors.size > 1 ? "Errors: \n* #{errors.join("\n* ")}" : "Error: #{errors.first}"
+    fail Vagrant::Errors::VagrantError.new, msg
+  end
+end
+
 # The following steps are executed to provision OpenShift Origin:
 # 1. Create a private network and set the Vagrant Box IP to *10.1.2.2*. If you want a different IP then change the **PUBLIC_ADDRESS** variable.
 # 2. Pull latest the *openshift/origin* container from docker hub and tag it.
@@ -34,7 +45,6 @@ end
 # <https://docs.openshift.org/latest/welcome/index.html>`_.
 
 Vagrant.configure(2) do |config|
-
   if ENV.has_key?('VAGRANT_HTTP_PROXY')
     config.proxy.http = ENV['VAGRANT_HTTP_PROXY']
   end

@@ -152,6 +152,33 @@ Detailed `installation instructions`_ are available.
 .. _vagrant-service-manager: https://github.com/projectatomic/vagrant-service-manager
 .. _atlas.hashicorp.com: https://atlas.hashicorp.com/boxes/search
 
+What if I'm behind a firewall?
+==============================
+
+To enable vm and docker connections behind a firewall we'll need an additional
+plugin, and to export the proxy settings before starting vagrant.
+
+1. Install the `vagrant-proxyconf`_ Vagrant plugin:
+
+   ``vagrant plugin install vagrant-proxyconf``
+
+2. Declare your proxy settings:
+
+  ``export VAGRANT_HTTP_PROXY=http:\\example.com:80``
+
+  ``export VAGRANT_HTTPS_PROXY=https:\\example.com:423``
+
+3. Start vagrant
+
+  ``vagrant up``
+
+Troubleshooting
+===============
+
+To restart vagrant after applying changes run:
+
+  ``vagrant reload``
+
 What is full feature set?
 =========================
 
